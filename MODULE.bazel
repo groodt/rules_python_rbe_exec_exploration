@@ -1,21 +1,19 @@
-"Bazel dependencies"
-
 module(
-    name = "com_myorg_rules_mylang",
+    name = "rules_python_rbe_exec_exploration",
     version = "0.0.0",
     compatibility_level = 1,
 )
 
 bazel_dep(name = "bazel_skylib", version = "1.4.1")
-bazel_dep(name = "platforms", version = "0.0.5")
 
-bazel_dep(name = "gazelle", version = "0.35.0", dev_dependency = True, repo_name = "bazel_gazelle")
-bazel_dep(name = "bazel_skylib_gazelle_plugin", version = "1.4.1", dev_dependency = True)
-bazel_dep(name = "aspect_bazel_lib", version = "1.32.1", dev_dependency = True)
-bazel_dep(name = "buildifier_prebuilt", version = "6.1.2", dev_dependency = True)
+bazel_dep(name = "rules_python", version = "0.35.0")
+python = use_extension("@rules_python//python/extensions:python.bzl", "python")
+python.toolchain(python_version = "3.12", is_default = True)
+python.toolchain(python_version = "3.10")
+use_repo(python, "python_3_12", "python_3_10", "python_versions")
 
-mylang = use_extension("//mylang:extensions.bzl", "mylang")
-mylang.toolchain(mylang_version = "1.14.2")
-use_repo(mylang, "mylang_toolchains")
-
-register_toolchains("@mylang_toolchains//:all")
+bazel_dep(name = "rules_foo", version = "0.0.0")
+local_path_override(
+    module_name = "rules_foo",
+    path = "rules_foo",
+)

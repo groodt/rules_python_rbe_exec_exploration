@@ -1,0 +1,18 @@
+load("@bazel_skylib//:bzl_library.bzl", "bzl_library")
+
+load("@python_versions//3.10:defs.bzl", "py_binary")
+
+py_binary(
+  name = "foo_tool",
+  srcs = ["foo_tool.py"],
+  deps = [
+    "@pypi//pydantic",
+  ]
+)
+
+bzl_library(
+    name = "rules",
+    srcs = [
+        "rules.bzl",
+    ],
+)
