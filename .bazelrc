@@ -1,20 +1,36 @@
-# Bazel settings that apply to this repository.
-# Take care to document any settings that you expect users to apply.
-# Settings that apply only to CI are in .github/workflows/ci.bazelrc
+# Required for @com_google_absl and remoteapis that use it.
+build --cxxopt=-std=c++17
+build --host_cxxopt=-std=c++17
 
-# Required until this is the default; expected in Bazel 7
-common --enable_bzlmod
+# Don't inherit the user environment as that trashes the cache.
+build --incompatible_strict_action_env
+# Use the new way of defining toolchains.
+build --incompatible_enable_cc_toolchain_resolution=true
+build --incompatible_use_cc_configure_from_rules_cc=true
 
-# Don’t want to push a rules author to update their deps if not needed.
-# https://bazel.build/reference/command-line-reference#flag--check_direct_dependencies
-# https://bazelbuild.slack.com/archives/C014RARENH0/p1691158021917459?thread_ts=1691156601.420349&cid=C014RARENH0
-common --check_direct_dependencies=off
+# Print the errors in the terminal, not just log files.
+test --test_output=errors
 
-# Load any settings specific to the current user.
-# .bazelrc.user should appear in .gitignore so that settings are not shared with team members
-# This needs to be last statement in this
-# config, as the user configuration should be able to overwrite flags from this file.
-# See https://docs.bazel.build/versions/master/best-practices.html#bazelrc
-# (Note that we use .bazelrc.user so the file appears next to .bazelrc in directory listing,
-# rather than user.bazelrc as suggested in the Bazel docs)
-try-import %workspace%/.bazelrc.user
+# Only download the final result, the intermediate files can stay on the
+# server side.
+build --remote_download_toplevel
+
+# Kubernetes will have a different host name than 'localhost'.
+build:remote-exec --remote_executor=grpc://localhost:8980
+# The Buildbarn worker can configure instance_name_prefix to create separate
+# execution bins within the cluster. Optional, but useful when trying new
+# worker configurations.
+build:remote-exec --remote_instance_name=fuse
+# Make sure to load Buildbarn with more requests than the number of CPUs on
+# your host machine.
+build:remote-exec --jobs=64
+# Make sure that the remote execution platform and the matching toolchains
+# take precedence over the other definitions in the WORKSPACE file.
+build:remote-exec --extra_toolchains=//tools/remote-toolchains:all
+
+# When running Ubuntu 22.04 executors.
+build:remote-ubuntu-22-04 --config=remote-exec
+build:remote-ubuntu-22-04 --extra_execution_platforms=//tools/remote-toolchains:ubuntu-act-22-04-platform
+
+# When running bare executors on your own host machine.
+build:remote-local --config=remote-exec
