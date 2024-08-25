@@ -1,0 +1,3 @@
+[submodule "bb-deployments"]
+	path = bb-deployments
+	url = git@github.com:buildbarn/bb-deployments.git
