@@ -30,6 +30,8 @@ cd REPO/bb-deployments/docker-compose
 
 ## Repro
 
+In a different terminal to the one you have buildbarn RBE running.
+
 ```
 bazel build \
   --config=remote-ubuntu-22-04 \
